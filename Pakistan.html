@@ -1,0 +1,576 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pakistan Country Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #00401A;
+            --secondary: #FFFFFF;
+            --accent: #00612A;
+            --light: #F5F5F5;
+            --dark: #333333;
+            --warning: #E74C3C;
+            --success: #27AE60;
+            --info: #3498DB;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        .dashboard {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .flag {
+            font-size: 4rem;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin: 10px 0;
+        }
+        
+        .stat-label {
+            color: var(--dark);
+            font-size: 0.9rem;
+        }
+        
+        .section {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--light);
+        }
+        
+        .charts-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .chart-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            height: 300px;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .info-card {
+            background: var(--light);
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .info-card h3 {
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        
+        .challenges-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        
+        .challenge-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border-top: 4px solid var(--warning);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        .challenge-card h4 {
+            color: var(--warning);
+            margin-bottom: 10px;
+        }
+        
+        .severity {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-top: 10px;
+        }
+        
+        .high {
+            background: #FFE5E5;
+            color: var(--warning);
+        }
+        
+        .medium {
+            background: #FFF4E5;
+            color: #E67E22;
+        }
+        
+        .progress-container {
+            margin-top: 10px;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background: #ECF0F1;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+        }
+        
+        .progress-high {
+            background: var(--warning);
+            width: 85%;
+        }
+        
+        .progress-medium {
+            background: #E67E22;
+            width: 65%;
+        }
+        
+        .opportunities {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .opportunity {
+            background: #E8F6F3;
+            color: var(--success);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: var(--dark);
+            font-size: 0.9rem;
+            margin-top: 30px;
+            border-top: 1px solid #ECF0F1;
+        }
+        
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .flag {
+                margin-top: 20px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <header>
+            <div class="header-content">
+                <div>
+                    <h1>Pakistan Country Dashboard</h1>
+                    <p class="subtitle">Comprehensive overview of demographic, economic, and social indicators</p>
+                </div>
+                <div class="flag">🇵🇰</div>
+            </div>
+        </header>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Population</div>
+                <div class="stat-value">241.49M</div>
+                <div class="stat-label">5th most populous country</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Nominal GDP</div>
+                <div class="stat-value">$373B</div>
+                <div class="stat-label">42nd globally</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">GDP per Capita</div>
+                <div class="stat-value">$1,485</div>
+                <div class="stat-label">Low income range</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Median Age</div>
+                <div class="stat-value">21</div>
+                <div class="stat-label">Youthful population</div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2 class="section-title">Demographics &amp; Society</h2>
+            <div class="charts-container">
+                <div class="chart-card">
+                    <canvas id="ethnicityChart"></canvas>
+                </div>
+                <div class="chart-card">
+                    <canvas id="urbanRuralChart"></canvas>
+                </div>
+                <div class="chart-card">
+                    <canvas id="languageChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="info-grid" style="margin-top: 20px;">
+                <div class="info-card">
+                    <h3>Population Growth</h3>
+                    <p>Annual growth rate: <strong>2.55%</strong></p>
+                    <p>Life expectancy: <strong>66 years</strong></p>
+                    <p>Urbanization rate: <strong>38.8%</strong></p>
+                </div>
+                <div class="info-card">
+                    <h3>Human Development</h3>
+                    <p>HDI: <strong>0.544</strong> (Medium development)</p>
+                    <p>Gini Coefficient: <strong>29.6</strong> (Moderate inequality)</p>
+                    <p>Labor participation: <strong>53%</strong></p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2 class="section-title">Economy</h2>
+            <div class="charts-container">
+                <div class="chart-card">
+                    <canvas id="sectorChart"></canvas>
+                </div>
+                <div class="chart-card">
+                    <canvas id="gdpChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="info-grid" style="margin-top: 20px;">
+                <div class="info-card">
+                    <h3>Economic Indicators</h3>
+                    <p>PPP GDP: <strong>$1.58 trillion</strong></p>
+                    <p>External debt: <strong>$131 billion</strong></p>
+                    <p>Inflation: <strong>High</strong></p>
+                </div>
+                <div class="info-card">
+                    <h3>Key Industries</h3>
+                    <p>Textiles, agriculture, IT services</p>
+                    <p>Natural resources: Gas, coal, minerals</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2 class="section-title">Challenges &amp; Risks</h2>
+            <div class="challenges-grid">
+                <div class="challenge-card">
+                    <h4>Economic Stability</h4>
+                    <p>High public debt, inflation, and reliance on IMF support</p>
+                    <div class="progress-container">
+                        <div class="progress-bar">
+                            <div class="progress-fill progress-high"></div>
+                        </div>
+                    </div>
+                    <span class="severity high">High Severity</span>
+                </div>
+                <div class="challenge-card">
+                    <h4>Climate Vulnerability</h4>
+                    <p>Frequent flooding, water scarcity, and natural disasters</p>
+                    <div class="progress-container">
+                        <div class="progress-bar">
+                            <div class="progress-fill progress-high"></div>
+                        </div>
+                    </div>
+                    <span class="severity high">High Severity</span>
+                </div>
+                <div class="challenge-card">
+                    <h4>Social Inequality</h4>
+                    <p>Gender disparities, rural-urban divide, education gaps</p>
+                    <div class="progress-container">
+                        <div class="progress-bar">
+                            <div class="progress-fill progress-medium"></div>
+                        </div>
+                    </div>
+                    <span class="severity medium">Medium Severity</span>
+                </div>
+                <div class="challenge-card">
+                    <h4>Security Issues</h4>
+                    <p>Regional instability, insurgent violence in some areas</p>
+                    <div class="progress-container">
+                        <div class="progress-bar">
+                            <div class="progress-fill progress-medium"></div>
+                        </div>
+                    </div>
+                    <span class="severity medium">Medium Severity</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2 class="section-title">Opportunities &amp; Outlook</h2>
+            <div class="opportunities">
+                <div class="opportunity">Demographic Dividend</div>
+                <div class="opportunity">CPEC Infrastructure</div>
+                <div class="opportunity">Digital Transformation</div>
+                <div class="opportunity">Agricultural Modernization</div>
+            </div>
+            
+            <div class="info-grid" style="margin-top: 20px;">
+                <div class="info-card">
+                    <h3>Strategic Outlook</h3>
+                    <p>Pakistan represents a nation of significant contrasts and potential. With a youthful demographic profile and strategic location, it faces both opportunities and challenges.</p>
+                </div>
+                <div class="info-card">
+                    <h3>2024-2025 Watch Points</h3>
+                    <ul>
+                        <li>IMF program implementation</li>
+                        <li>Climate adaptation efforts</li>
+                        <li>Security situation stabilization</li>
+                        <li>Political continuity</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Data Sources: World Bank, IMF, Pakistan Bureau of Statistics, CIA World Factbook 2024</p>
+        </footer>
+    </div>
+
+    <script>
+        // Ethnicity Chart
+        const ethnicityCtx = document.getElementById('ethnicityChart').getContext('2d');
+        const ethnicityChart = new Chart(ethnicityCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Punjabi', 'Pashtun', 'Sindhi', 'Saraiki', 'Muhajirs', 'Balochi', 'Others'],
+                datasets: [{
+                    data: [44.7, 15.4, 14.1, 10.5, 7.6, 3.6, 4.1],
+                    backgroundColor: [
+                        '#00401A', '#00612A', '#008C3A', '#00B44A', '#4CD46A', '#85E895', '#B4F5C0'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Ethnic Composition'
+                    },
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+        
+        // Urban-Rural Chart
+        const urbanRuralCtx = document.getElementById('urbanRuralChart').getContext('2d');
+        const urbanRuralChart = new Chart(urbanRuralCtx, {
+            type: 'pie',
+            data: {
+                labels: ['Urban', 'Rural'],
+                datasets: [{
+                    data: [38.8, 61.2],
+                    backgroundColor: ['#3498DB', '#E74C3C'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Urban vs Rural Population'
+                    },
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+        
+        // Language Chart
+        const languageCtx = document.getElementById('languageChart').getContext('2d');
+        const languageChart = new Chart(languageCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Urdu', 'Punjabi', 'Pashto', 'Sindhi', 'Saraiki', 'Balochi'],
+                datasets: [{
+                    label: 'Language Speakers (%)',
+                    data: [70, 44, 15, 14, 10, 4],
+                    backgroundColor: '#00401A',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Major Languages'
+                    },
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Percentage of Population'
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Sector Chart
+        const sectorCtx = document.getElementById('sectorChart').getContext('2d');
+        const sectorChart = new Chart(sectorCtx, {
+            type: 'pie',
+            data: {
+                labels: ['Services', 'Agriculture', 'Industry', 'Other'],
+                datasets: [{
+                    data: [52, 22.4, 20.4, 5.2],
+                    backgroundColor: ['#00401A', '#00612A', '#008C3A', '#00B44A'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'GDP by Sector'
+                    },
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+        
+        // GDP Chart
+        const gdpCtx = document.getElementById('gdpChart').getContext('2d');
+        const gdpChart = new Chart(gdpCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Nominal GDP', 'PPP GDP', 'GDP per Capita', 'External Debt'],
+                datasets: [{
+                    label: 'Value (in billions)',
+                    data: [373, 1580, 1.485, 131],
+                    backgroundColor: ['#00401A', '#00612A', '#008C3A', '#E74C3C'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Economic Indicators'
+                    },
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+
+</body></html>
